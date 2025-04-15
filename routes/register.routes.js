@@ -12,8 +12,6 @@ const router = express.Router();
 // @access  Private (you should add auth later)
 router.get("/", register);
 
-// 🔐 Later you can add more routes like:
-// router.post("/login", loginAdmin);
-// router.post("/create", createAdmin);
+
 
 export default router;

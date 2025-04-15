@@ -1,7 +1,5 @@
 import Project from "../models/project.model.js";
 import cloudinary from "../config/cloudinary.js";
-import path from "path";
-import fs from "fs/promises";
 
 /**
  * @desc    Create a new project with uploaded image
@@ -20,13 +18,11 @@ export const createProject = async (req, res) => {
 
     let imageUrl = "";
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
+      const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+      const result = await cloudinary.uploader.upload(base64Image, {
         folder: "projects",
       });
       imageUrl = result.secure_url;
-
-      // Remove local file after upload
-      await fs.unlink(req.file.path);
     }
 
     const newProject = new Project({
@@ -44,16 +40,6 @@ export const createProject = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Error creating project:", error.message);
-
-    if (req.file) {
-      try {
-        await fs.unlink(req.file.path);
-        console.log("❌ Deleted uploaded image after error");
-      } catch (fileError) {
-        console.error("❌ Error deleting uploaded image:", fileError.message);
-      }
-    }
-
     return res.status(500).json({
       message: "❌ Server Error",
       error: error.message,
@@ -136,12 +122,11 @@ export const updateProject = async (req, res) => {
     let newImageUrl = existingProject.image;
 
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
+      const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+      const result = await cloudinary.uploader.upload(base64Image, {
         folder: "projects",
       });
       newImageUrl = result.secure_url;
-
-      await fs.unlink(req.file.path); // Remove local file
     }
 
     const updatedProject = await Project.findByIdAndUpdate(
@@ -183,9 +168,6 @@ export const deleteProject = async (req, res) => {
         message: "❌ Project not found",
       });
     }
-
-    // Cloudinary cleanup (optional)
-    // If you want to delete image from cloudinary, you must store public_id during upload
 
     return res.status(200).json({
       message: "✅ Project deleted successfully",

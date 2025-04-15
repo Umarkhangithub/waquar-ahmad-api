@@ -1,4 +1,5 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import cors from 'cors';
 import fs from 'fs/promises';  // Use fs.promises for async file handling
 import path from 'path';
@@ -62,8 +63,8 @@ const startServer = async () => {
 // 🧩 Global Middlewares
 // ----------------------------
 app.use(cors()); // Enable Cross-Origin Resource Sharing
-app.use(express.json()); // Built-in middleware to parse application/json
-app.use(express.urlencoded({ extended: true })); // Built-in middleware for URL-encoded bodies
+app.use(bodyParser.json()); // Built-in middleware to parse application/json
+app.use(bodyParser.urlencoded({ extended: true })); // Built-in middleware for URL-encoded bodies
 
 // Serve static files (images) from /uploads folder
 app.use('/uploads', express.static(uploadDir));
